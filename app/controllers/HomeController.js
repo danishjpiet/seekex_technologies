@@ -1,9 +1,9 @@
-const Ball = require("../models/Ball");
 const Bucket = require("../models/Bucket");
-const BallsInBucket = require("../models/BallsInBucket");
 const Result = require("../models/Result");
 const { QueryTypes } = require("sequelize");
 const sequelize = require("../config/db");
+const BallsInBucket = require("../models/BallsInBucket");
+const Ball = require("../models/Ball");
 
 const homepage = async (req, res) => {
   const buckets = await Bucket.findAll({
@@ -40,4 +40,20 @@ const homepage = async (req, res) => {
   return res.render("index", { buckets, balls, resultDataArray });
 };
 
-module.exports = { homepage };
+const clearAllData = async (req, res) => {
+  await Result.destroy({
+    truncate: true,
+  });
+  await BallsInBucket.destroy({
+    truncate: true,
+  });
+  await Ball.destroy({
+    truncate: true,
+  });
+  await Bucket.destroy({
+    truncate: true,
+  });
+  req.flash("success", "Deleted All Data Successfully");
+  return res.redirect("/");
+};
+module.exports = { homepage, clearAllData };

@@ -18,6 +18,10 @@
   </head>
   <body class="bg-light">
     <div class="container my-5">
+      <div class="text-right my-2">
+        <a href="/clearAllData" class="btn btn-danger">Clear All Data</a>
+      </div>
+
       <% if(locals?.success?.length){ %>
       <div class="alert alert-success" role="alert"><%= success%></div>
       <% } %> <% if(locals?.error?.length){ %>
