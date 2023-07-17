@@ -98,7 +98,8 @@
                     </tbody>
                   </table>
                   <div class="d-grid gap-2 col-4 mx-auto">
-                    <input class="btn btn-warning" type="submit" value="SAVE" />
+                    <input class="btn btn-warning" type="submit" value="SAVE"
+                    <%= buckets.length ? "" : "disabled" %> />
                   </div>
                 </form>
               </div>
