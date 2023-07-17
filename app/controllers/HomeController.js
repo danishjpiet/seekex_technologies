@@ -1,28 +1,20 @@
-const { INTEGER } = require("sequelize");
 const Ball = require("../models/Ball");
 const Bucket = require("../models/Bucket");
-const { removeEmptyElement, clearDataFromDB } = require("../utils");
 const BallsInBucket = require("../models/BallsInBucket");
 const Result = require("../models/Result");
-const _ = require("lodash");
+const { QueryTypes } = require("sequelize");
+const sequelize = require("../config/db");
 
 const homepage = async (req, res) => {
   const buckets = await Bucket.findAll({
     raw: true,
   });
 
-  const balls = await Ball.findAll({
-    attributes: ["ballName", "ballVolume"],
-    include: [
-      {
-        model: BallsInBucket,
-        attributes: ["ballCount"],
-      },
-    ],
-    raw: true,
-  });
+  const balls = await sequelize.query(
+    `SELECT balls.ballName, balls.ballVolume, balls_in_buckets.ballCount FROM balls LEFT OUTER JOIN balls_in_buckets ON balls.ballName = balls_in_buckets.ballName`,
+    { type: QueryTypes.SELECT }
+  );
 
-  // console.log(balls);
   const result = await Result.findOne({
     raw: true,
   });
@@ -48,74 +40,4 @@ const homepage = async (req, res) => {
   return res.render("index", { buckets, balls, resultDataArray });
 };
 
-const placeBallsInBucket = async (req, res) => {
-  const obj = req.body;
-  const newObj = removeEmptyElement(obj);
-  const requestData = Object.assign({}, newObj);
-
-  const buckets = await Bucket.findAll({
-    order: [["bucketVolume", "DESC"]],
-    raw: true,
-  });
-
-  const keys = Object.keys(newObj);
-  const balls = await Ball.findAll({
-    where: {
-      ballName: [keys],
-    },
-    order: [["ballVolume", "ASC"]],
-    raw: true,
-  });
-  let result = [];
-  for (let i = 0; i < buckets.length; i++) {
-    let bucketName = buckets[i].bucketName;
-    let bucketVolume = buckets[i].bucketVolume;
-    remainingBallData = {};
-    for (let j = 0; j < balls.length; j++) {
-      let possibleBallCount = Math.round(bucketVolume / balls[j].ballVolume);
-      let remainsBall = 0;
-
-      if (possibleBallCount <= newObj[balls[j].ballName]) {
-        remainsBall = newObj[balls[j].ballName] - possibleBallCount;
-        bucketVolume = bucketVolume - possibleBallCount * balls[j].ballVolume;
-      } else {
-        bucketVolume =
-          bucketVolume - newObj[balls[j].ballName] * balls[j].ballVolume;
-      }
-
-      result.push({
-        key: bucketName,
-        value: `${newObj[balls[j].ballName] - remainsBall} ${
-          balls[j].ballName
-        } Balls `,
-      });
-
-      if (!remainsBall) {
-        balls.splice(j, 1);
-        j--;
-      } else {
-        newObj[balls[j].ballName] = remainsBall;
-      }
-
-      if (!bucketVolume) {
-        break;
-      }
-    }
-  }
-
-  const grouped = _.groupBy(result, "key");
-  const resultData = JSON.stringify(grouped);
-  const data = Object.entries(requestData).map((entry) => {
-    return {
-      ballName: entry[0],
-      ballCount: entry[1],
-    };
-  });
-
-  await clearDataFromDB();
-  await BallsInBucket.bulkCreate(data);
-  await Result.create({ resultData: resultData });
-  return res.redirect("/");
-};
-
-module.exports = { homepage, placeBallsInBucket };
+module.exports = { homepage };

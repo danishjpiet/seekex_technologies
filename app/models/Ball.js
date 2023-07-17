@@ -20,8 +20,6 @@ const Ball = sequelize.define("balls", {
   },
 });
 
-Ball.hasOne(BallsInBucket, { sourceKey: "ballName", foreignKey: "ballName" });
-
 Ball.sync({ force: false });
 
 module.exports = Ball;

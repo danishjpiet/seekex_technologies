@@ -18,6 +18,11 @@
   </head>
   <body class="bg-light">
     <div class="container my-5">
+      <% if(locals?.success?.length){ %>
+      <div class="alert alert-success" role="alert"><%= success%></div>
+      <% } %> <% if(locals?.error?.length){ %>
+      <div class="alert alert-danger" role="alert"><%=error%></div>
+      <% } %>
       <div class="row my-5">
         <div class="col-2 my-2">
           <h3>Bucket List</h3>
@@ -44,7 +49,7 @@
                           <label for="Bucket Name">Bucket Name</label>
                         </td>
                         <td>
-                          <input type="text" class="form" name="bucket_name" />
+                          <input type="text" class="form" name="bucketName" />
                         </td>
                       </tr>
                       <tr>
@@ -52,11 +57,7 @@
                           <label for="Bucket Name">Volume(in inches)</label>
                         </td>
                         <td>
-                          <input
-                            type="text"
-                            class="form"
-                            name="bucket_volume"
-                          />
+                          <input type="text" class="form" name="bucketVolume" />
                         </td>
                       </tr>
                     </tbody>
@@ -83,7 +84,7 @@
                           <label for="Bucket Name">Ball Name</label>
                         </td>
                         <td>
-                          <input type="text" class="form" name="ball_name" />
+                          <input type="text" class="form" name="ballName" />
                         </td>
                       </tr>
                       <tr>
@@ -91,7 +92,7 @@
                           <label for="Bucket Name">Volume(in inches)</label>
                         </td>
                         <td>
-                          <input type="text" class="form" name="ball_volume" />
+                          <input type="text" class="form" name="ballVolume" />
                         </td>
                       </tr>
                     </tbody>
@@ -124,7 +125,7 @@
                       type="text"
                       class="form"
                       name="<%= e.ballName %>"
-                      value="<%= e['balls_in_bucket.ballCount']%>"
+                      value="<%= e.ballCount %>"
                     />
                   </td>
                 </tr>

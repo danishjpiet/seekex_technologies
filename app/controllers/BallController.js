@@ -1,15 +1,27 @@
 const Ball = require("../models/Ball");
-const Bucket = require("../models/Bucket");
 const { clearDataFromDB } = require("../utils");
+const { createBallSchema } = require("../validators/ballValidation");
 
 const createBall = async (req, res) => {
-  const { ball_name, ball_volume } = req.body;
+  const { error, value } = createBallSchema.validate(req.body);
+  if (error) {
+    req.flash("error", error.details[0].message);
+    return res.redirect("/");
+  }
+
+  const { ballName, ballVolume } = value;
   const data = {
-    ballName: ball_name,
-    ballVolume: ball_volume,
+    ballName,
+    ballVolume,
   };
-  await Ball.create(data);
+
+  const created = await Ball.create(data);
   await clearDataFromDB();
+  if (created) {
+    req.flash("success", "Ball created successfully");
+  } else {
+    req.flash("error", "Something went wrong.");
+  }
   return res.redirect("/");
 };
 
